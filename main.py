@@ -3,6 +3,8 @@ import random
 from PIL import Image
 import os
 
+smol = 3
+
 def translator(number, x): #number to (x, y)
     new_x = (number % x)
     new_y = (number // x)
@@ -21,13 +23,14 @@ def get_image_dict():
     w, h = img.size
     pixels = img.load()
     for i in range((w * h)):
-        values[i] = pixels[translator(i, w)]
+        if i % smol == 0:
+            values[i] = pixels[translator(i, w)]
     return [values, w, h]
 
 def main():
-    loops = 18
-    population = 85
-    gens = 7
+    loops = 22
+    population = 200
+    gens = 8
     values, w, h = get_image_dict()
     pygame.init()
     screen = pygame.display.set_mode((w, h))
@@ -44,8 +47,9 @@ def main():
     def rate(all_gens): #compares whole image to generated image
         counter = 0
         for key in all_gens:
-            val = values[key]
-            counter += abs(val[0] - all_gens[key][0]) + abs(val[1] - all_gens[key][1]) + abs(val[2] - all_gens[key][2])
+            if key % smol == 0:
+                val = values[key]
+                counter += abs(val[0] - all_gens[key][0]) + abs(val[1] - all_gens[key][1]) + abs(val[2] - all_gens[key][2])
         return counter
 
     def intersect(x:tuple, y:tuple) -> list:
@@ -58,7 +62,11 @@ def main():
         y2 = max(0, min(y2, h - 1))
         cords_list = [(xi, yi) for xi in range(min(x1, x2), max(x1, x2) + 1)
                             for yi in range(min(y1, y2), max(y1, y2) + 1)]
-        return cords_list
+        new = []
+        for c in cords_list:
+            if c[0] & 2 == 0 and c[1] % 2 == 0:
+                new.append(c)
+        return new
 
     def mutate(fella:list, params:tuple, cols:tuple) -> list:
         new_r = min(255, max(0, fella[0] + random.randint(cols[0], cols[1])))
@@ -72,12 +80,13 @@ def main():
 
     def evolve():
         best_ni = None
+        the_list = []
         best_dih = 676767676767676767676767676767
         for gen in range(gens):
             print(gen)
             if gen > 0:
                 for i in range(population):
-                    pop[i] = mutate(best_ni, (round(-w / gens), round(w / gens)), (-20, 20))
+                    pop[i] = mutate(random.choice(the_list), (round(-w / gens), round(w / gens)), (-20, 20))
             for cre in pop: #cre = key of dict
                 temp_ag = my_image.copy() #has list of w*h amount
                 tects = intersect(pop[cre][3], pop[cre][4])
@@ -86,7 +95,9 @@ def main():
                 check = rate(temp_ag)
                 if check < best_dih:
                     best_dih = check
-                    best_ni = pop[cre]
+                    the_list.append(pop[cre])
+                    best_ni = the_list[-1]
+                the_list = the_list[len(the_list) // 4:]
             print(f'best_ni: {best_ni}') #best_ni is a list
         return best_ni, intersect(best_ni[3], best_ni[4]), (best_ni[0], best_ni[1], best_ni[2])
     
@@ -98,7 +109,8 @@ def main():
         #the line
         my_image = dict()
         for i in range(w * h):
-            my_image[i] = (0, 0, 0)
+            if i & smol == 0:
+                my_image[i] = (0, 0, 0)
         for loop in range(loops):
             print(f'loop: {loop}')
             pop = dict()
