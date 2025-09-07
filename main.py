@@ -15,7 +15,7 @@ def transformer(x, y, w): #(x, y) to number
 
 def get_image_dict():
     values = dict()
-    img_path = os.path.join('Green.jpg')
+    img_path = os.path.join('meples.png')
     img = Image.open(img_path).convert('RGB')
 
     w, h = img.size
@@ -36,7 +36,7 @@ def main():
     screen = pygame.display.set_mode((w, h))
     screen.fill((255, 255, 255))
     pygame.display.flip()
-    pygame.display.set_caption('image simplifier')
+    pygame.display.set_caption('image replicator')
 
     def visualizer():
         for i in range(w * h):
@@ -127,7 +127,7 @@ def main():
             rectni = pygame.Rect(min(x1, x2), min(y1, y2), abs(x2 - x1), abs(y2 - y1))
             pygame.draw.rect(screen, (my_fella[0], my_fella[1], my_fella[2]), rectni)
             pygame.display.flip()
-        pygame.image.save(screen, 'saved_screen.png')
+        pygame.image.save(screen, 'circle.png')
 
 
 if __name__ == '__main__':
