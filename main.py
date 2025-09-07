@@ -4,6 +4,7 @@ from PIL import Image
 import os
 
 smol = 3
+scale = 1
 
 def translator(number, x): #number to (x, y)
     new_x = (number % x)
@@ -19,7 +20,7 @@ def get_image_dict():
     img = Image.open(img_path).convert('RGB')
 
     w, h = img.size
-    img = img.resize((w // 2, h // 2))
+    img = img.resize((w // scale, h // scale))
     w, h = img.size
     pixels = img.load()
     for i in range((w * h)):
